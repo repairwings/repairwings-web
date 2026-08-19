@@ -4,6 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RepairWings | Doorstep Repair Service</title>
+  
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Tera Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOrJZdJboEcssxfkY", // Apni asli API key yahan cross check kar lena
+      authDomain: "repairwings-7812f.firebaseapp.com",
+      projectId: "repairwings-7812f",
+      storageBucket: "repairwings-7812f.appspot.com",
+      messagingSenderId: "64125291649",
+      appId: "1:64125291649:web:7e0a63"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.auth = auth;
+    window.db = db;
+    window.RecaptchaVerifier = RecaptchaVerifier;
+    window.signInWithPhoneNumber = signInWithPhoneNumber;
+  </script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #f8fafc; color: #0f172a; font-size: 14px; }
@@ -47,7 +74,8 @@
     .country-code { padding: 12px 14px; background: #f1f5f9; font-weight: 700; color: #334155; border-right: 1px solid #cbd5e1; }
     .phone-input-box input { width: 100%; padding: 12px; border: none; outline: none; background: transparent; font-size: 15px; font-weight: 600; }
 
-    .btn-primary { width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; }
+    .btn-blue-full { width: 100%; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .btn-white-outline { width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px; }
     .auth-footer-note { font-size: 11px; text-align: center; opacity: 0.8; line-height: 1.4; margin-bottom: 10px; }
 
     /* Customer Dashboard App */
@@ -89,22 +117,17 @@
     .quick-box span { display: block; font-size: 22px; margin-bottom: 4px; }
 
     .why-card { background: #fff; margin: 0 16px 20px; padding: 16px; border-radius: 16px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-    .order-item-card { background: #fff; margin: 0 16px 12px; padding: 16px; border-radius: 16px; border: 1px solid #f1f5f9; }
-
+    
     .account-page-title { display: flex; align-items: center; gap: 12px; margin: 10px 16px 16px; }
     .back-btn-box { width: 32px; height: 32px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #e2e8f0; cursor: pointer; }
     .acc-card { background: #fff; margin: 0 16px 16px; padding: 20px; border-radius: 20px; border: 1px solid #f1f5f9; }
     .acc-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .acc-card-header h3 { font-size: 16px; font-weight: 700; }
     .acc-card p { font-size: 12px; color: #64748b; line-height: 1.4; margin-bottom: 16px; }
-    
-    .btn-blue-full { width: 100%; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
-    .btn-white-outline { width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px; }
 
     /* Partner Dashboard App */
     #partner-app { display: none; padding: 20px; padding-bottom: 50px; }
     .partner-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 16px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-    .lead-card { background: white; padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
     /* Modal Popup Screen */
     #action-modal {
@@ -123,7 +146,7 @@
 </head>
 <body>
 
-  <!-- Screen 1: Role Selection & Dynamic Login Flow -->
+  <!-- Screen 1: Role Selection & Login Flow -->
   <div id="auth-screen">
     <div class="auth-brand-area">
       <div class="brand-title">RepairWings</div>
@@ -187,12 +210,12 @@
       </div>
 
       <div class="search-input-box">
-        <input type="text" id="search-box" placeholder="Search product, brand..." onkeyup="filterServices(this.value)">
+        <input type="text" id="search-box" placeholder="Search product, brand...">
       </div>
 
       <div class="section-head">Repair something</div>
 
-      <div class="services-grid" id="services-grid-container">
+      <div class="services-grid">
         <div class="service-card" onclick="openBookingForm('Mobile')">
           <div class="service-icon">📱</div>
           <h4>Mobile</h4>
@@ -252,7 +275,7 @@
     <!-- Orders Tab -->
     <div id="tab-orders" class="tab-view">
       <div class="section-head" style="margin-top: 10px;">Your Orders & Tracking</div>
-      <div id="orders-container"></div>
+      <div id="orders-container" style="margin: 16px; padding: 20px; background: #fff; border-radius: 12px; text-align: center; color: #64748b;">No active orders found.</div>
     </div>
 
     <!-- Payments Tab -->
@@ -278,14 +301,6 @@
         </div>
         <p>Mobile number verified, saved addresses and preferences.</p>
         <button class="btn-white-outline" onclick="logoutApp()" style="color: #dc2626; border-color: #fecaca;">Logout</button>
-      </div>
-
-      <div class="acc-card">
-        <div class="acc-card-header">
-          <span style="color: #64748b; font-size: 18px;">🛡️</span>
-          <h3>Service protection</h3>
-        </div>
-        <p>Verified repairer, order ID, digital receipt aur repair status history.</p>
       </div>
     </div>
 
@@ -315,30 +330,23 @@
       </div>
       <button class="btn-white-outline" style="width: auto; padding: 6px 12px; font-size: 12px; margin: 0; color: #dc2626; border-color: #fecaca;" onclick="logoutApp()">Logout</button>
     </div>
-
-    <div style="padding: 14px; border-radius: 12px; background: #eff6ff; margin-bottom: 16px; border: 1px solid #bfdbfe;">
-      <h4 style="font-size: 13px; color: #1e40af; font-weight: 700;">⚠️ Mandatory Notice</h4>
-      <p style="font-size: 11px; color: #1e3a8a; margin-top: 2px;">Customer product milne se pehle KYC & admin approval verified honi chahiye.</p>
-    </div>
-
-    <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">Available Repair Leads</h3>
-    <div id="partner-leads-list"></div>
+    <div id="partner-leads-list" style="padding: 16px; background: #fff; border-radius: 12px; text-align: center; color: #64748b;">No new leads right now.</div>
   </div>
 
-  <!-- Interactive Action Modal -->
+  <!-- Interactive Action Modal & reCAPTCHA Container -->
   <div id="action-modal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal()">✕</button>
       <div id="modal-body-content"></div>
     </div>
   </div>
+  <div id="recaptcha-container"></div>
 
   <script>
     let selectedRole = '';
     let savedPhone = "";
-    let userOrders = [];
+    let confirmationResultGlobal = null;
 
-    // Step 1: User clicks Customer or Partner button, then phone input opens
     function openPhoneInput(role) {
       selectedRole = role;
       let roleTitle = role === 'customer' ? 'Customer Login' : 'Repairer / Partner Login';
@@ -351,33 +359,60 @@
           <span class="country-code">+91</span>
           <input type="tel" id="modal-phone-input" maxlength="10" placeholder="Mobile number">
         </div>
-        <button class="btn-blue-full" onclick="sendOTP()">Get OTP →</button>
+        <button class="btn-blue-full" onclick="requestOTP()">Get OTP →</button>
       `;
       document.getElementById('action-modal').style.display = 'flex';
     }
 
-    // Step 2: Send OTP & open OTP verification box
-    function sendOTP() {
+    // Firebase Phone Auth Trigger
+    function requestOTP() {
       let phone = document.getElementById('modal-phone-input').value;
       if(phone.length < 10) {
         alert('Kripya valid 10-digit mobile number daalein.');
         return;
       }
       savedPhone = phone;
+      let fullPhoneNumber = "+91" + phone;
+
+      // Setup reCAPTCHA if not already created
+      if (!window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier = new window.RecaptchaVerifier(window.auth, 'recaptcha-container', {
+            'size': 'invisible'
+          });
+        } catch (e) {
+          console.log("Recaptcha error:", e);
+        }
+      }
+
+      const appVerifier = window.recaptchaVerifier;
       
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 8px; color: #1d4ed8;">Enter OTP</h3>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">OTP sent to +91 ${phone} (${selectedRole.toUpperCase()})</p>
-        <input type="tel" id="otp-input" maxlength="4" placeholder="••••" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; font-size:20px; text-align:center; letter-spacing:8px;">
-        <button class="btn-blue-full" onclick="verifyOTP()">Verify & Login</button>
-      `;
+      window.signInWithPhoneNumber(window.auth, fullPhoneNumber, appVerifier)
+        .then((confirmationResult) => {
+          confirmationResultGlobal = confirmationResult;
+          
+          let modalBody = document.getElementById('modal-body-content');
+          modalBody.innerHTML = `
+            <h3 style="margin-bottom: 8px; color: #1d4ed8;">Enter OTP</h3>
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">OTP sent to ${fullPhoneNumber} (${selectedRole.toUpperCase()})</p>
+            <input type="tel" id="otp-input" maxlength="6" placeholder="Enter 6-digit OTP" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; font-size:18px; text-align:center; letter-spacing:4px;">
+            <button class="btn-blue-full" onclick="verifyOTPCode()">Verify & Login</button>
+          `;
+        }).catch((error) => {
+          console.error("SMS not sent", error);
+          alert("OTP bhejane mein samasya aayi: " + error.message);
+        });
     }
 
-    // Step 3: Verify OTP and navigate to respective dashboard
-    function verifyOTP() {
+    function verifyOTPCode() {
       let otp = document.getElementById('otp-input').value;
-      if(otp.length >= 4 || otp === '') {
+      if(!otp || otp.length < 4) {
+        alert('Kripya valid OTP daalein');
+        return;
+      }
+
+      confirmationResultGlobal.confirm(otp).then((result) => {
+        const user = result.user;
         closeModal();
         document.getElementById('auth-screen').style.display = 'none';
 
@@ -385,30 +420,26 @@
           document.getElementById('customer-app').style.display = 'block';
           document.getElementById('account-phone-text').innerText = "+91 " + savedPhone;
           switchTab('home');
-          renderOrders();
         } else {
           document.getElementById('partner-app').style.display = 'block';
           document.getElementById('partner-phone-display').innerText = "+91 " + savedPhone + " (Verified Partner)";
-          renderPartnerLeads();
         }
-      } else {
-        alert('Kripya valid OTP daalein');
-      }
+      }).catch((error) => {
+        alert('Galat OTP! Kripya dobara koshish karein.');
+      });
     }
 
     function logoutApp() {
       if(confirm("Kya aap logout karna chahte hain?")) {
-        location.reload();
+        window.auth.signOut().then(() => {
+          location.reload();
+        });
       }
     }
 
-    // Switch between tabs safely
     function switchTab(tabName) {
-      let tabs = document.querySelectorAll('.tab-view');
-      tabs.forEach(tab => tab.classList.remove('active'));
-      
-      let navs = document.querySelectorAll('.nav-tab');
-      navs.forEach(nav => nav.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(nav => nav.classList.remove('active'));
 
       let targetTab = document.getElementById('tab-' + tabName);
       if(targetTab) targetTab.classList.add('active');
@@ -431,20 +462,6 @@
 
     function showWhyModal() {
       alert("RepairWings guarantees transparent estimates and verified doorstep partners!");
-    }
-
-    function filterServices(query) {
-      // Search logic placeholder
-    }
-
-    function renderOrders() {
-      let container = document.getElementById('orders-container');
-      container.innerHTML = `<div style="margin: 16px; padding: 20px; background: #fff; border-radius: 12px; text-align: center; color: #64748b;">No active orders found.</div>`;
-    }
-
-    function renderPartnerLeads() {
-      let container = document.getElementById('partner-leads-list');
-      container.innerHTML = `<div style="padding: 16px; background: #fff; border-radius: 12px; text-align: center; color: #64748b;">No new leads right now.</div>`;
     }
   </script>
 </body>
