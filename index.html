@@ -3,481 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepairWings | Doorstep Repair Service</title>
+  <title>RepairWings | Login</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f8fafc; color: #0f172a; font-size: 14px; }
-    
-    /* Login / Auth Screen (App khulte hi yehi dikhega) */
-    #auth-screen {
-      min-height: 100vh;
-      background: linear-gradient(180deg, #1d4ed8 0%, #3b82f6 100%);
-      color: white;
-      padding: 40px 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .auth-brand-area { margin-top: 40px; }
-    .brand-title { font-size: 40px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
-    .brand-sub { font-size: 16px; opacity: 0.9; font-weight: 400; line-height: 1.4; }
-    
-    .auth-card {
-      background: white;
-      color: #0f172a;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    .auth-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-    .auth-card p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
-    
-    .phone-input-box { display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin-bottom: 15px; background: #f8fafc; }
-    .country-code { padding: 12px 14px; background: #f1f5f9; font-weight: 700; color: #334155; border-right: 1px solid #cbd5e1; }
-    .phone-input-box input { width: 100%; padding: 12px; border: none; outline: none; background: transparent; font-size: 15px; font-weight: 600; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+    body { background: #f8fafc; color: #0f172a; }
 
-    .btn-primary { width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; }
+    /* Auth Screen */
+    #auth-screen { min-height: 100vh; background: #1d4ed8; color: white; padding: 40px 24px; display: flex; flex-direction: column; justify-content: center; }
+    .auth-title { font-size: 32px; font-weight: 800; margin-bottom: 20px; }
+    .role-btn { background: white; color: #1d4ed8; padding: 16px; border-radius: 12px; margin-bottom: 12px; font-weight: 700; text-align: center; cursor: pointer; }
     
-    .auth-footer-note { font-size: 11px; text-align: center; opacity: 0.8; line-height: 1.4; margin-bottom: 20px; }
-
-    /* Main Dashboard App */
+    /* Dashboard & Tabs (Same as before) */
     #app-interface { display: none; padding-bottom: 75px; }
-    
-    .top-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: #fff; }
-    .app-logo { font-size: 24px; font-weight: 800; color: #1d4ed8; }
-    .user-avatar { width: 36px; height: 36px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1d4ed8; font-size: 16px; cursor: pointer; font-weight: bold; }
-
-    .location-banner {
-      background: #fff; margin: 12px 16px 16px; padding: 12px 16px; border-radius: 16px;
-      display: flex; align-items: center; gap: 12px; border: 1px solid #f1f5f9; cursor: pointer;
-    }
-    .loc-icon-bg { width: 32px; height: 32px; background: #dcfce7; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #16a34a; }
-    
-    .tab-view { display: none; }
-    .tab-view.active { display: block; }
-
-    .hero-banner { background: #2563eb; color: white; margin: 0 16px 20px; padding: 20px; border-radius: 20px; }
-    .hero-banner h2 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
-    .hero-banner p { font-size: 12px; opacity: 0.9; margin-bottom: 16px; }
-    .btn-main-book { background: white; color: #2563eb; padding: 10px 18px; border-radius: 10px; font-weight: 700; border: none; font-size: 13px; cursor: pointer; }
-    .badges-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-    .badge-item { background: rgba(255,255,255,0.2); font-size: 10px; padding: 4px 8px; border-radius: 12px; }
-
-    .search-input-box { margin: 0 16px 20px; }
-    .search-input-box input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0; outline: none; background: #fff; }
-
-    .section-head { font-size: 16px; font-weight: 700; margin: 0 16px 12px; display: flex; justify-content: space-between; align-items: center; }
-
-    .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 16px 24px; }
-    .service-card { background: #fff; padding: 14px; border-radius: 16px; border: 1px solid #f1f5f9; position: relative; cursor: pointer; }
-    .service-icon { font-size: 30px; margin-bottom: 6px; }
-    .service-card h4 { font-size: 14px; font-weight: 700; }
-    .service-card p { font-size: 10px; color: #64748b; margin-top: 2px; }
-    .card-next-arrow { position: absolute; right: 10px; bottom: 10px; width: 20px; height: 20px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b; }
-
-    .quick-help-row { display: flex; gap: 10px; margin: 0 16px 24px; }
-    .quick-box { flex: 1; background: #fff; padding: 12px; border-radius: 14px; text-align: center; border: 1px solid #f1f5f9; font-size: 11px; font-weight: 700; cursor: pointer; }
-    .quick-box span { display: block; font-size: 22px; margin-bottom: 4px; }
-
-    .why-card { background: #fff; margin: 0 16px 20px; padding: 16px; border-radius: 16px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-
-    /* Orders List Styling */
-    .order-item-card { background: #fff; margin: 0 16px 12px; padding: 16px; border-radius: 16px; border: 1px solid #f1f5f9; }
-
-    /* Account Page */
-    .account-page-title { display: flex; align-items: center; gap: 12px; margin: 10px 16px 16px; }
-    .back-btn-box { width: 32px; height: 32px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #e2e8f0; cursor: pointer; }
-    
-    .acc-card { background: #fff; margin: 0 16px 16px; padding: 20px; border-radius: 20px; border: 1px solid #f1f5f9; }
-    .acc-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .acc-card-header h3 { font-size: 16px; font-weight: 700; }
-    .acc-card p { font-size: 12px; color: #64748b; line-height: 1.4; margin-bottom: 16px; }
-    
-    .btn-blue-full { width: 100%; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; }
-    .btn-white-outline { width: 100%; background: #fff; color: #0f172a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 8px; }
-
-    /* Modal Popup Screen */
-    #action-modal {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
-      display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;
-    }
-    .modal-content { background: white; width: 100%; max-width: 400px; padding: 24px; border-radius: 20px; position: relative; }
-    .modal-close { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; cursor: pointer; }
-
-    /* Bottom Navbar */
-    .bottom-navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; z-index: 999; }
-    .nav-tab { text-align: center; color: #64748b; text-decoration: none; font-size: 10px; font-weight: 600; cursor: pointer; width: 25%; }
-    .nav-tab.active { color: #2563eb; }
-    .nav-tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+    /* ... (Baaki CSS wahi rahegi jo upar di thi) ... */
   </style>
 </head>
 <body>
 
-  <!-- Screen 1: Direct Login / Phone Authentication (Jaise Zepto/Zomato me hota hai) -->
+  <!-- Login Selection -->
   <div id="auth-screen">
-    <div class="auth-brand-area">
-      <div class="brand-title">RepairWings</div>
-      <div class="brand-sub">Doorstep electronics & appliance repair service.</div>
-    </div>
-
-    <div class="auth-card">
-      <h3>Login or Signup</h3>
-      <p>Enter your mobile number to continue</p>
-      
-      <div class="phone-input-box">
-        <span class="country-code">+91</span>
-        <input type="tel" id="user-phone" maxlength="10" placeholder="Enter mobile number">
-      </div>
-      
-      <button class="btn-primary" onclick="sendOTP()">Continue →</button>
-    </div>
-
-    <div class="auth-footer-note">
-      By continuing, you agree to RepairWings Terms of Use & Privacy Policy.
-    </div>
-  </div>
-
-  <!-- Screen 2: Main Dashboard App -->
-  <div id="app-interface">
+    <div class="auth-title">RepairWings</div>
+    <p style="margin-bottom: 30px; opacity: 0.9;">Aap yahan kaise login karna chahte hain?</p>
     
-    <div class="top-header">
-      <div class="app-logo">RepairWings</div>
-      <div class="user-avatar" onclick="switchTab('account')">RW</div>
-    </div>
-
-    <div class="location-banner" onclick="changeLocation()">
-      <div class="loc-icon-bg">📍</div>
-      <div>
-        <div style="font-size: 9px; color: #64748b; font-weight: 700;">PICKUP LOCATION</div>
-        <div id="loc-text" style="font-weight: 700; font-size: 12px;">Bhuasa Mandi, Aishbagh, Lucknow</div>
-      </div>
-    </div>
-
-    <!-- Home Tab -->
-    <div id="tab-home" class="tab-view active">
-      <div class="hero-banner">
-        <h2>Ghar ki cheez kharab hai?</h2>
-        <p>Verified repairer aayega, pickup karega, repair karega aur safe delivery karega.</p>
-        <button class="btn-main-book" onclick="openBookingForm('General Repair')">Repair book karein →</button>
-        <div class="badges-row">
-          <span class="badge-item">✓ Verified repairers</span>
-          <span class="badge-item">✓ Price estimate</span>
-          <span class="badge-item">✓ Doorstep</span>
-        </div>
-      </div>
-
-      <div class="search-input-box">
-        <input type="text" id="search-box" placeholder="Search product, brand..." onkeyup="filterServices(this.value)">
-      </div>
-
-      <div class="section-head">Repair something</div>
-
-      <div class="services-grid" id="services-grid-container">
-        <div class="service-card" onclick="openBookingForm('Mobile')">
-          <div class="service-icon">📱</div>
-          <h4>Mobile</h4>
-          <p>Screen, battery, charging</p>
-          <div class="card-next-arrow">›</div>
-        </div>
-        <div class="service-card" onclick="openBookingForm('TV')">
-          <div class="service-icon">📺</div>
-          <h4>TV</h4>
-          <p>Display, sound, power</p>
-          <div class="card-next-arrow">›</div>
-        </div>
-        <div class="service-card" onclick="openBookingForm('AC')">
-          <div class="service-icon">❄️</div>
-          <h4>AC</h4>
-          <p>Cooling, gas, compressor</p>
-          <div class="card-next-arrow">›</div>
-        </div>
-        <div class="service-card" onclick="openBookingForm('Fridge')">
-          <div class="service-icon">🧊</div>
-          <h4>Fridge</h4>
-          <p>Cooling, compressor, PCB</p>
-          <div class="card-next-arrow">›</div>
-        </div>
-        <div class="service-card" onclick="openBookingForm('Washing Machine')">
-          <div class="service-icon">🌀</div>
-          <h4>Washing Machine</h4>
-          <p>Motor, drain, PCB</p>
-          <div class="card-next-arrow">›</div>
-        </div>
-        <div class="service-card" onclick="openBookingForm('Microwave')">
-          <div class="service-icon">♨️</div>
-          <h4>Microwave</h4>
-          <p>Heating, keypad, power</p>
-          <div class="card-next-arrow">›</div>
-        </div>
-      </div>
-
-      <div class="section-head">Quick help</div>
-      <div class="quick-help-row">
-        <div class="quick-box" onclick="openBookingForm('Fridge')"><span>🧊</span>Fridge</div>
-        <div class="quick-box" onclick="switchTab('orders')"><span>📍</span>Track pickup</div>
-        <div class="quick-box" onclick="switchTab('orders')"><span>🧾</span>My orders</div>
-      </div>
-
-      <div class="section-head">Why RepairWings?</div>
-      <div class="why-card" onclick="showWhyModal()">
-        <div style="font-size: 24px; background: #eff6ff; padding: 8px; border-radius: 12px; color: #2563eb;">🛡️</div>
-        <div>
-          <div style="font-weight: 700;">Transparent & safer repair</div>
-          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Estimate pehle • repairer verification • order tracking</div>
-        </div>
-        <div style="margin-left: auto; color: #94a3b8;">›</div>
-      </div>
-    </div>
-
-    <!-- Orders Tab -->
-    <div id="tab-orders" class="tab-view">
-      <div class="section-head" style="margin-top: 10px;">Your Orders & Tracking</div>
-      <div id="orders-container">
-        <div style="margin: 16px; padding: 30px 16px; background: #fff; border-radius: 16px; text-align: center; border: 1px solid #f1f5f9;">
-          <div style="font-size: 40px; margin-bottom: 8px;">🧾</div>
-          <div style="font-weight: 700; font-size: 15px;">No active pickups or orders</div>
-          <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Book a repair to track status live here.</div>
-          <button class="btn-blue-full" style="margin-top: 15px; width: auto; padding: 8px 16px;" onclick="switchTab('home')">Book Now</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Payments Tab -->
-    <div id="tab-payments" class="tab-view">
-      <div class="section-head" style="margin-top: 10px;">Payments & Refunds</div>
-      <div style="margin: 16px; padding: 30px 16px; background: #fff; border-radius: 16px; text-align: center; border: 1px solid #f1f5f9;">
-        <div style="font-size: 40px; margin-bottom: 8px;">₹</div>
-        <div style="font-weight: 700; font-size: 15px;">No transactions recorded yet</div>
-      </div>
-    </div>
-
-    <!-- Account Tab -->
-    <div id="tab-account" class="tab-view">
-      <div class="account-page-title">
-        <div class="back-btn-box" onclick="switchTab('home')">‹</div>
-        <h2 style="font-size: 20px; font-weight: 800;">Account</h2>
-      </div>
-
-      <div class="acc-card">
-        <div class="acc-card-header">
-          <span style="color: #2563eb; font-size: 18px;">👤</span>
-          <h3 id="account-phone-text">Logged in user</h3>
-        </div>
-        <p id="account-desc-text">Mobile number verified, saved addresses and preferences.</p>
-        <button class="btn-white-outline" onclick="logoutApp()" style="color: #dc2626; border-color: #fecaca;">Logout</button>
-      </div>
-
-      <div class="acc-card">
-        <div class="acc-card-header">
-          <span style="color: #64748b; font-size: 18px;">🛡️</span>
-          <h3>Service protection</h3>
-        </div>
-        <p>Verified repairer, order ID, digital receipt aur repair status history.</p>
-      </div>
-
-      <div class="acc-card">
-        <div class="acc-card-header">
-          <span style="color: #64748b; font-size: 18px;">💬</span>
-          <h3>Help & support</h3>
-        </div>
-        <p>Order related support ke liye order ID share karke help le sakte ho.</p>
-        <button class="btn-white-outline" onclick="openSupportModal()">Open support</button>
-      </div>
-    </div>
-
-    <!-- Bottom Navigation -->
-    <div class="bottom-navbar">
-      <div class="nav-tab active" id="nav-home" onclick="switchTab('home')">
-        <span class="nav-tab-icon">🏠</span>Home
-      </div>
-      <div class="nav-tab" id="nav-orders" onclick="switchTab('orders')">
-        <span class="nav-tab-icon">📋</span>Orders
-      </div>
-      <div class="nav-tab" id="nav-payments" onclick="switchTab('payments')">
-        <span class="nav-tab-icon">₹</span>Payments
-      </div>
-      <div class="nav-tab" id="nav-account" onclick="switchTab('account')">
-        <span class="nav-tab-icon">👤</span>Account
-      </div>
-    </div>
+    <div class="role-btn" onclick="startLogin('customer')">Login as Customer 👤</div>
+    <div class="role-btn" onclick="startLogin('partner')" style="background: #eff6ff;">Login as Partner 🔧</div>
   </div>
 
-  <!-- Interactive Action Modal -->
-  <div id="action-modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div id="modal-body-content"></div>
-    </div>
+  <!-- Dashboard (yahan content aayega) -->
+  <div id="app-interface">
+    <!-- Ye dynamic change hoga -->
   </div>
 
   <script>
-    let userOrders = [];
-    let savedPhone = "";
+    let currentRole = "";
 
-    function sendOTP() {
-      let phone = document.getElementById('user-phone').value;
-      if(phone.length < 10) {
-        alert('Kripya valid 10-digit mobile number daalein.');
-        return;
-      }
-      savedPhone = phone;
-      
-      // OTP simulation modal
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 8px; color: #1d4ed8;">Enter OTP</h3>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">OTP sent to +91 ${phone}</p>
-        <input type="tel" id="otp-input" maxlength="4" placeholder="Enter 4-digit OTP (e.g. 1234)" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; font-size:16px; text-align:center; letter-spacing:4px;">
-        <button class="btn-blue-full" onclick="verifyOTP()">Verify & Login</button>
-      `;
-      document.getElementById('action-modal').style.display = 'flex';
-    }
-
-    function verifyOTP() {
-      let otp = document.getElementById('otp-input').value;
-      if(otp.length >= 4 || otp === '') {
-        closeModal();
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-interface').style.display = 'block';
-        document.getElementById('account-phone-text').innerText = "+91 " + savedPhone;
-        switchTab('home');
+    function startLogin(role) {
+      currentRole = role;
+      let phone = prompt("Apna mobile number enter karein:");
+      if(phone && phone.length === 10) {
+        alert(role.toUpperCase() + " Login Successful!");
+        showDashboard(role);
       } else {
-        alert('Kripya valid OTP daalein');
+        alert("Valid 10-digit number daalein.");
       }
     }
 
-    function logoutApp() {
-      if(confirm("Kya aap logout karna chahte hain?")) {
-        location.reload();
-      }
-    }
-
-    function switchTab(tabName) {
-      let tabs = document.getElementsByClassName('tab-view');
-      for(let t of tabs) { t.classList.remove('active'); }
-
-      let navs = document.getElementsByClassName('nav-tab');
-      for(let n of navs) { n.classList.remove('active'); }
-
-      document.getElementById('tab-' + tabName).classList.add('active');
-      document.getElementById('nav-' + tabName).classList.add('active');
-      window.scrollTo(0, 0);
-    }
-
-    function changeLocation() {
-      let newLoc = prompt("Apni nayi pickup location enter karein:", "Bhuasa Mandi, Aishbagh, Lucknow");
-      if(newLoc) {
-        document.getElementById('loc-text').innerText = newLoc;
-      }
-    }
-
-    function openBookingForm(serviceName) {
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 12px; color: #1d4ed8;">Book ${serviceName} Repair</h3>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Apna naam aur problem niche bharein:</p>
-        <input type="text" id="book-name" placeholder="Aapka Naam" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:8px;">
-        <textarea id="book-desc" placeholder="Problem description (jaise: screen toot gayi hai...)" style="width:100%; padding:10px; height:80px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px;"></textarea>
-        <button class="btn-blue-full" onclick="submitBooking('${serviceName}')">Confirm Booking</button>
-      `;
-      document.getElementById('action-modal').style.display = 'flex';
-    }
-
-    function submitBooking(serviceName) {
-      let name = document.getElementById('book-name').value;
-      let desc = document.getElementById('book-desc').value;
-
-      if(!name) {
-        alert('Kripya apna naam bharein.');
-        return;
-      }
-
-      let newOrder = {
-        id: 'RW-' + Math.floor(1000 + Math.random() * 9000),
-        service: serviceName,
-        name: name,
-        phone: savedPhone,
-        desc: desc || 'Standard inspection',
-        status: 'Pickup Pending'
-      };
-
-      userOrders.push(newOrder);
-      alert('Booking successful! Order ID: ' + newOrder.id);
-      closeModal();
-      renderOrders();
-      switchTab('orders');
-    }
-
-    function renderOrders() {
-      let container = document.getElementById('orders-container');
-      if(userOrders.length === 0) {
-        container.innerHTML = `
-          <div style="margin: 16px; padding: 30px 16px; background: #fff; border-radius: 16px; text-align: center; border: 1px solid #f1f5f9;">
-            <div style="font-size: 40px; margin-bottom: 8px;">🧾</div>
-            <div style="font-weight: 700; font-size: 15px;">No active pickups or orders</div>
-            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Book a repair to track status live here.</div>
-            <button class="btn-blue-full" style="margin-top: 15px; width: auto; padding: 8px 16px;" onclick="switchTab('home')">Book Now</button>
+    function showDashboard(role) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-interface').style.display = 'block';
+      
+      // Yahan logic hai: Agar Partner hai toh sirf leads dikhao, Customer hai toh home page
+      if(role === 'partner') {
+        document.getElementById('app-interface').innerHTML = `
+          <div style="padding: 20px;">
+            <h2>Partner Dashboard</h2>
+            <p>Aapki active leads yahan hongi.</p>
+            <div id="partner-leads">No leads yet.</div>
           </div>
         `;
       } else {
-        let html = '<div class="section-head" style="margin-top: 10px;">Your Orders & Tracking</div>';
-        for(let ord of userOrders) {
-          html += `
-            <div class="order-item-card">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                <span style="font-weight: 800; color: #1d4ed8;">${ord.service} Repair</span>
-                <span style="font-size: 11px; background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 6px; font-weight: 700;">${ord.status}</span>
-              </div>
-              <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Order ID: <b>${ord.id}</b></div>
-              <div style="font-size: 12px; color: #334155; margin-bottom: 8px;">Issue: ${ord.desc}</div>
-              <div style="font-size: 11px; color: #2563eb; font-weight: 700;">📍 Status: Verified repairer assigned for pickup</div>
-            </div>
-          `;
-        }
-        container.innerHTML = html;
-      }
-    }
-
-    function openSupportModal() {
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 12px; color: #1d4ed8;">Help & Support</h3>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Apni query yahan share karein:</p>
-        <textarea placeholder="Aapko kya help chahiye?" style="width:100%; padding:10px; height:80px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px;"></textarea>
-        <button class="btn-blue-full" onclick="alert('Support ticket submitted successfully!'); closeModal();">Submit Request</button>
-      `;
-      document.getElementById('action-modal').style.display = 'flex';
-    }
-
-    function showWhyModal() {
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 12px; color: #1d4ed8;">Why RepairWings?</h3>
-        <p style="font-size: 13px; color: #334155; line-height: 1.6;">
-          • <b>Estimate pehle:</b> Bina hidden charges ke transparent pricing.<br><br>
-          • <b>Verified repairer:</b> Complete background and KYC check.<br><br>
-          • <b>Order tracking:</b> Live pickup to delivery tracking.
-        </p>
-        <button class="btn-blue-full" style="margin-top: 15px;" onclick="closeModal()">Got it</button>
-      `;
-      document.getElementById('action-modal').style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('action-modal').style.display = 'none';
-    }
-
-    function filterServices(query) {
-      let filter = query.toLowerCase();
-      let cards = document.getElementsByClassName('service-card');
-      for (let card of cards) {
-        let text = card.innerText.toLowerCase();
-        if (text.includes(filter)) {
-          card.style.display = "block";
-        } else {
-          card.style.display = "none";
-        }
+        // Customer ka original dashboard code yahan aayega
       }
     }
   </script>
