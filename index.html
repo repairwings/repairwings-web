@@ -402,203 +402,49 @@
       }
     }
 
+    // Switch between tabs safely
     function switchTab(tabName) {
-      let tabs = document.getElementsByClassName('tab-view');
-      for(let t of tabs) { t.classList.remove('active'); }
+      let tabs = document.querySelectorAll('.tab-view');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      let navs = document.querySelectorAll('.nav-tab');
+      navs.forEach(nav => nav.classList.remove('active'));
 
-      let navs = document.getElementsByClassName('nav-tab');
-      for(let n of navs) { n.classList.remove('active'); }
+      let targetTab = document.getElementById('tab-' + tabName);
+      if(targetTab) targetTab.classList.add('active');
 
-      document.getElementById('tab-' + tabName).classList.add('active');
-      document.getElementById('nav-' + tabName).classList.add('active');
-      window.scrollTo(0, 0);
-    }
-
-    function changeLocation() {
-      let newLoc = prompt("Apni nayi pickup location enter karein:", "Bhuasa Mandi, Aishbagh, Lucknow");
-      if(newLoc) {
-        document.getElementById('loc-text').innerText = newLoc;
-      }
-    }
-
-    function openBookingForm(serviceName) {
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 12px; color: #1d4ed8;">Book ${serviceName} Repair</h3>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Apna naam aur problem niche bharein:</p>
-        <input type="text" id="book-name" placeholder="Aapka Naam" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:8px;">
-        <textarea id="book-desc" placeholder="Problem description (jaise: screen toot gayi hai...)" style="width:100%; padding:10px; height:80px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px;"></textarea>
-        <button class="btn-blue-full" onclick="submitBooking('${serviceName}')">Confirm Booking</button>
-      `;
-      document.getElementById('action-modal').style.display = 'flex';
-    }
-
-    function submitBooking(serviceName) {
-      let name = document.getElementById('book-name').value;
-      let desc = document.getElementById('book-desc').value;
-
-      if(!name) {
-        alert('Kripya apna naam bharein.');
-        return;
-      }
-
-      let newOrder = {
-        id: 'RW-' + Math.floor(1000 + Math.random() * 9000),
-        service: serviceName,
-        name: name,
-        phone: savedPhone,
-        desc: desc || 'Standard inspection',
-        status: 'Pickup Pending',
-        cost: null
-      };
-
-      userOrders.push(newOrder);
-      alert('Booking successful! Order ID: ' + newOrder.id);
-      closeModal();
-      renderOrders();
-      switchTab('orders');
-    }
-
-    function renderOrders() {
-      let container = document.getElementById('orders-container');
-      if(userOrders.length === 0) {
-        container.innerHTML = `
-          <div style="margin: 16px; padding: 30px 16px; background: #fff; border-radius: 16px; text-align: center; border: 1px solid #f1f5f9;">
-            <div style="font-size: 40px; margin-bottom: 8px;">🧾</div>
-            <div style="font-weight: 700; font-size: 15px;">No active pickups or orders</div>
-            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Book a repair to track status live here.</div>
-            <button class="btn-blue-full" style="margin-top: 15px; width: auto; padding: 8px 16px;" onclick="switchTab('home')">Book Now</button>
-          </div>
-        `;
-      } else {
-        let html = '<div class="section-head" style="margin-top: 10px;">Your Orders & Tracking</div>';
-        for(let ord of userOrders) {
-          html += `
-            <div class="order-item-card">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                <span style="font-weight: 800; color: #1d4ed8;">${ord.service} Repair</span>
-                <span style="font-size: 11px; background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 6px; font-weight: 700;">${ord.status}</span>
-              </div>
-              <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Order ID: <b>${ord.id}</b></div>
-              <div style="font-size: 12px; color: #334155; margin-bottom: 8px;">Issue: ${ord.desc}</div>
-              ${ord.cost ? `<div style="font-size: 12px; color: #16a34a; font-weight: 700; margin-bottom: 6px;">Final Amount: ₹${ord.cost}</div>` : ''}
-              <div style="font-size: 11px; color: #2563eb; font-weight: 700;">📍 Status: ${ord.status}</div>
-            </div>
-          `;
-        }
-        container.innerHTML = html;
-      }
-    }
-
-    function acceptLead(orderId) {
-      let order = userOrders.find(o => o.id === orderId);
-      if(order) {
-        order.status = 'Out for Pickup (Assigned)';
-        alert('Lead accepted successfully! Order ID: ' + orderId);
-        renderPartnerLeads();
-        renderOrders();
-      }
-    }
-
-    function completeOrder(orderId) {
-      let order = userOrders.find(o => o.id === orderId);
-      if(order) {
-        let finalCost = prompt("Repair ki final cost (₹) enter karein:", "1200");
-        if(finalCost) {
-          order.status = 'Repair Completed & Delivered';
-          order.cost = finalCost;
-          alert('Order successfully completed! Final amount: ₹' + finalCost);
-          renderPartnerLeads();
-          renderOrders();
-        }
-      }
-    }
-
-    function openChatModal(name, phone) {
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 8px; color: #1d4ed8;">Support / Contact</h3>
-        <p style="font-size: 13px; color: #334155; margin-bottom: 15px;">Connecting with <b>${name}</b> (+91 ${phone})</p>
-        <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 12px; color: #64748b;">
-          💬 "Hello! RepairWings support se baat ho rahi hai. Aapki kya sahayata ki ja sakti hai?"
-        </div>
-        <input type="text" id="chat-msg" placeholder="Type a message..." style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #cbd5e1; border-radius:8px;">
-        <button class="btn-blue-full" onclick="alert('Message sent!'); closeModal();">Send Message</button>
-      `;
-      document.getElementById('action-modal').style.display = 'flex';
-    }
-
-    function renderPartnerLeads() {
-      let container = document.getElementById('partner-leads-list');
-      if(userOrders.length === 0) {
-        container.innerHTML = `
-          <div style="background: white; padding: 30px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0;">
-            <div style="font-size: 36px; margin-bottom: 8px;">📭</div>
-            <div style="font-weight: 700; font-size: 14px;">No new repair leads right now</div>
-            <p style="font-size: 11px; color: #64748b; margin-top: 4px;">Jab koi customer booking karega, toh lead yahan dikhegi.</p>
-          </div>
-        `;
-      } else {
-        let html = "";
-        for(let ord of userOrders) {
-          let isAccepted = ord.status.includes('Out for Pickup') || ord.status.includes('Repair Completed');
-          let isCompleted = ord.status.includes('Repair Completed');
-          
-          html += `
-            <div class="lead-card">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                <span style="font-weight: 800; color: #1d4ed8;">${ord.service} Repair</span>
-                <span style="font-size: 11px; background: ${isCompleted ? '#dcfce7' : '#fef3c7'}; color: ${isCompleted ? '#16a34a' : '#d97706'}; padding: 2px 8px; border-radius: 6px; font-weight: 700;">${ord.status}</span>
-              </div>
-              <div style="font-size: 12px; color: #334155; margin-bottom: 4px;">Customer: <b>${ord.name}</b> (+91 ${ord.phone})</div>
-              <div style="font-size: 12px; color: #64748b; margin-bottom: 10px;">Issue: ${ord.desc}</div>
-              
-              ${!isAccepted ? 
-                `<button class="btn-blue-full" style="padding: 8px; font-size: 12px;" onclick="acceptLead('${ord.id}')">Accept Pickup Lead</button>` :
-                (!isCompleted ? 
-                  `<div style="display: flex; gap: 8px;">
-                     <button class="btn-blue-full" style="padding: 8px; font-size: 11px; background: #16a34a;" onclick="completeOrder('${ord.id}')">Mark Complete</button>
-                     <button class="btn-white-outline" style="padding: 8px; font-size: 11px; margin: 0;" onclick="openChatModal('${ord.name}', '${ord.phone}')">Call / Chat</button>
-                   </div>` :
-                  `<div style="font-size: 11px; color: #16a34a; font-weight: 700; background: #f0fdf4; padding: 8px; border-radius: 8px; text-align: center;">✓ Order Completed</div>`
-                )
-              }
-            </div>
-          `;
-        }
-        container.innerHTML = html;
-      }
-    }
-
-    function showWhyModal() {
-      let modalBody = document.getElementById('modal-body-content');
-      modalBody.innerHTML = `
-        <h3 style="margin-bottom: 12px; color: #1d4ed8;">Why RepairWings?</h3>
-        <p style="font-size: 13px; color: #334155; line-height: 1.6;">
-          • <b>Estimate pehle:</b> Bina hidden charges ke transparent pricing.<br><br>
-          • <b>Verified repairer:</b> Complete background and KYC check.<br><br>
-          • <b>Order tracking:</b> Live pickup to delivery tracking.
-        </p>
-        <button class="btn-blue-full" style="margin-top: 15px;" onclick="closeModal()">Got it</button>
-      `;
-      document.getElementById('action-modal').style.display = 'flex';
+      let targetNav = document.getElementById('nav-' + tabName);
+      if(targetNav) targetNav.classList.add('active');
     }
 
     function closeModal() {
       document.getElementById('action-modal').style.display = 'none';
     }
 
+    function changeLocation() {
+      alert("Location selection feature coming soon!");
+    }
+
+    function openBookingForm(serviceName) {
+      alert(serviceName + " repair booking form open ho raha hai!");
+    }
+
+    function showWhyModal() {
+      alert("RepairWings guarantees transparent estimates and verified doorstep partners!");
+    }
+
     function filterServices(query) {
-      let filter = query.toLowerCase();
-      let cards = document.getElementsByClassName('service-card');
-      for (let card of cards) {
-        let text = card.innerText.toLowerCase();
-        if (text.includes(filter)) {
-          card.style.display = "block";
-        } else {
-          card.style.display = "none";
-        }
-      }
+      // Search logic placeholder
+    }
+
+    function renderOrders() {
+      let container = document.getElementById('orders-container');
+      container.innerHTML = `<div style="margin: 16px; padding: 20px; background: #fff; border-radius: 12px; text-align: center; color: #64748b;">No active orders found.</div>`;
+    }
+
+    function renderPartnerLeads() {
+      let container = document.getElementById('partner-leads-list');
+      container.innerHTML = `<div style="padding: 16px; background: #fff; border-radius: 12px; text-align: center; color: #64748b;">No new leads right now.</div>`;
     }
   </script>
 </body>
