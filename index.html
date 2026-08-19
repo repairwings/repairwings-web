@@ -33,14 +33,14 @@
     .auth-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
     .auth-card p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     
-    .role-selection-box { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .role-selection-box { display: flex; flex-direction: column; gap: 12px; margin-bottom: 10px; }
     .role-option-btn {
-      display: flex; align-items: center; gap: 14px; padding: 14px 16px;
-      border: 2px solid #e2e8f0; border-radius: 14px; background: #f8fafc; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 14px; padding: 16px;
+      border: 2px solid #e2e8f0; border-radius: 16px; background: #f8fafc; cursor: pointer; transition: 0.2s;
     }
-    .role-option-btn.selected { border-color: #2563eb; background: #eff6ff; }
-    .role-icon { font-size: 24px; }
-    .role-info h4 { font-size: 14px; font-weight: 700; color: #0f172a; }
+    .role-option-btn:hover { border-color: #2563eb; background: #eff6ff; }
+    .role-icon { font-size: 28px; }
+    .role-info h4 { font-size: 15px; font-weight: 700; color: #0f172a; }
     .role-info p { font-size: 11px; color: #64748b; margin: 0; }
 
     .phone-input-box { display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin-bottom: 15px; background: #f8fafc; }
@@ -123,7 +123,7 @@
 </head>
 <body>
 
-  <!-- Screen 1: Smart Login with Role Selection -->
+  <!-- Screen 1: Role Selection & Dynamic Login Flow -->
   <div id="auth-screen">
     <div class="auth-brand-area">
       <div class="brand-title">RepairWings</div>
@@ -132,32 +132,25 @@
 
     <div class="auth-card">
       <h3>Welcome</h3>
-      <p>Select your role to continue</p>
+      <p>Pehle apna role chunein:</p>
       
       <div class="role-selection-box">
-        <div class="role-option-btn selected" id="role-cust" onclick="selectRole('customer')">
+        <div class="role-option-btn" onclick="openPhoneInput('customer')">
           <div class="role-icon">👤</div>
           <div class="role-info">
-            <h4>Customer</h4>
+            <h4>Customer Login</h4>
             <p>Mujhe apna product repair karwana hai</p>
           </div>
         </div>
 
-        <div class="role-option-btn" id="role-part" onclick="selectRole('partner')">
+        <div class="role-option-btn" onclick="openPhoneInput('partner')">
           <div class="role-icon">🔧</div>
           <div class="role-info">
-            <h4>Repairer / Partner</h4>
+            <h4>Repairer / Partner Login</h4>
             <p>Main repair service provide karta hoon</p>
           </div>
         </div>
       </div>
-      
-      <div class="phone-input-box">
-        <span class="country-code">+91</span>
-        <input type="tel" id="user-phone" maxlength="10" placeholder="Enter mobile number">
-      </div>
-      
-      <button class="btn-primary" onclick="sendOTP()">Get OTP & Continue →</button>
     </div>
 
     <div class="auth-footer-note">
@@ -259,9 +252,7 @@
     <!-- Orders Tab -->
     <div id="tab-orders" class="tab-view">
       <div class="section-head" style="margin-top: 10px;">Your Orders & Tracking</div>
-      <div id="orders-container">
-        <!-- Rendered dynamically -->
-      </div>
+      <div id="orders-container"></div>
     </div>
 
     <!-- Payments Tab -->
@@ -331,9 +322,7 @@
     </div>
 
     <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">Available Repair Leads</h3>
-    <div id="partner-leads-list">
-      <!-- Rendered dynamically -->
-    </div>
+    <div id="partner-leads-list"></div>
   </div>
 
   <!-- Interactive Action Modal -->
@@ -345,23 +334,31 @@
   </div>
 
   <script>
-    let selectedRole = 'customer';
+    let selectedRole = '';
     let savedPhone = "";
     let userOrders = [];
 
-    function selectRole(role) {
+    // Step 1: User clicks Customer or Partner button, then phone input opens
+    function openPhoneInput(role) {
       selectedRole = role;
-      if(role === 'customer') {
-        document.getElementById('role-cust').classList.add('selected');
-        document.getElementById('role-part').classList.remove('selected');
-      } else {
-        document.getElementById('role-part').classList.add('selected');
-        document.getElementById('role-cust').classList.remove('selected');
-      }
+      let roleTitle = role === 'customer' ? 'Customer Login' : 'Repairer / Partner Login';
+      
+      let modalBody = document.getElementById('modal-body-content');
+      modalBody.innerHTML = `
+        <h3 style="margin-bottom: 6px; color: #1d4ed8;">${roleTitle}</h3>
+        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Apna 10-digit mobile number enter karein:</p>
+        <div class="phone-input-box" style="margin-bottom: 15px;">
+          <span class="country-code">+91</span>
+          <input type="tel" id="modal-phone-input" maxlength="10" placeholder="Mobile number">
+        </div>
+        <button class="btn-blue-full" onclick="sendOTP()">Get OTP →</button>
+      `;
+      document.getElementById('action-modal').style.display = 'flex';
     }
 
+    // Step 2: Send OTP & open OTP verification box
     function sendOTP() {
-      let phone = document.getElementById('user-phone').value;
+      let phone = document.getElementById('modal-phone-input').value;
       if(phone.length < 10) {
         alert('Kripya valid 10-digit mobile number daalein.');
         return;
@@ -372,12 +369,12 @@
       modalBody.innerHTML = `
         <h3 style="margin-bottom: 8px; color: #1d4ed8;">Enter OTP</h3>
         <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">OTP sent to +91 ${phone} (${selectedRole.toUpperCase()})</p>
-        <input type="tel" id="otp-input" maxlength="4" placeholder="Enter 4-digit OTP (e.g. 1234)" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; font-size:16px; text-align:center; letter-spacing:4px;">
+        <input type="tel" id="otp-input" maxlength="4" placeholder="••••" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; font-size:20px; text-align:center; letter-spacing:8px;">
         <button class="btn-blue-full" onclick="verifyOTP()">Verify & Login</button>
       `;
-      document.getElementById('action-modal').style.display = 'flex';
     }
 
+    // Step 3: Verify OTP and navigate to respective dashboard
     function verifyOTP() {
       let otp = document.getElementById('otp-input').value;
       if(otp.length >= 4 || otp === '') {
