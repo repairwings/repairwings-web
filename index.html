@@ -21,11 +21,39 @@
         </div>
     </header>
 
-    <!-- Hero / Main Content -->
-    <main id="main-content" class="p-8 text-center max-w-4xl mx-auto my-12">
+    <!-- Hero / Main Content (For Customers to Book Repairs) -->
+    <main id="main-content" class="p-6 text-center max-w-4xl mx-auto my-6">
         <h2 class="text-4xl font-extrabold mb-4">Expert Repair Services at Your Doorstep</h2>
         <p class="text-gray-600 text-lg mb-8">Fast, reliable, and professional repair solutions for your appliances and gadgets.</p>
-        <button id="get-started-btn" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition">Get Started</button>
+        
+        <!-- Service Booking Section -->
+        <div id="booking-section" class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 text-left max-w-lg mx-auto mb-8">
+            <h3 class="text-xl font-bold mb-4 text-blue-600">Book a Repair Service</h3>
+            <form id="booking-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Select Appliance / Item</label>
+                    <select id="appliance-select" class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600 bg-white" required>
+                        <option value="">-- Choose what to repair --</option>
+                        <option value="AC (Air Conditioner)">AC (Air Conditioner)</option>
+                        <option value="Washing Machine">Washing Machine</option>
+                        <option value="Refrigerator">Refrigerator</option>
+                        <option value="LED / Smart TV">LED / Smart TV</option>
+                        <option value="Microwave Oven">Microwave Oven</option>
+                        <option value="Geyser / Water Heater">Geyser / Water Heater</option>
+                        <option value="Other Gadget/Appliance">Other Gadget / Appliance</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Describe the Issue</label>
+                    <textarea id="issue-input" rows="3" placeholder="E.g., Not cooling properly, making loud noise, etc." class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Your Address / Location</label>
+                    <input type="text" id="address-input" placeholder="Enter complete address for doorstep visit" class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md">Book Repair Now</button>
+            </form>
+        </div>
     </main>
 
     <!-- Partner KYC Form (Hidden by default) -->
@@ -78,7 +106,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBOrJZdJboEsCssxfkYGHXc30yNYkFQzls",
@@ -96,7 +124,6 @@
 
         const roleModal = document.getElementById('role-modal');
         document.getElementById('open-modal-btn').onclick = () => roleModal.classList.remove('hidden');
-        document.getElementById('get-started-btn').onclick = () => roleModal.classList.remove('hidden');
         document.getElementById('close-modal-btn').onclick = () => roleModal.classList.add('hidden');
 
         async function handleRoleSelection(role) {
@@ -106,24 +133,24 @@
                 const user = result.user;
                 
                 const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
+                let userSnap;
+                try {
+                    userSnap = await getDoc(userRef);
+                } catch (e) {
+                    console.log("Read error, creating new record");
+                }
 
-                if (!userSnap.exists()) {
+                if (!userSnap || !userSnap.exists()) {
                     await setDoc(userRef, {
                         email: user.email,
                         name: user.displayName,
                         role: role,
                         kycCompleted: role === 'customer',
                         createdAt: new Date()
-                    });
+                    }, { merge: true });
                 }
 
-                const userData = userSnap.exists() ? userSnap.data() : { role: role, kycCompleted: role === 'customer' };
-
-                if (userData.role === 'partner' && !userData.kycCompleted) {
-                    document.getElementById('main-content').classList.add('hidden');
-                    document.getElementById('kyc-section').classList.remove('hidden');
-                }
+                location.reload();
             } catch (error) {
                 console.error("Login Error:", error);
                 alert("Login failed: " + error.message);
@@ -133,6 +160,40 @@
         document.getElementById('role-customer-btn').onclick = () => handleRoleSelection('customer');
         document.getElementById('role-partner-btn').onclick = () => handleRoleSelection('partner');
 
+        // Booking Form Submission
+        document.getElementById('booking-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const user = auth.currentUser;
+            if (!user) {
+                roleModal.classList.remove('hidden');
+                return;
+            }
+
+            const appliance = document.getElementById('appliance-select').value;
+            const issue = document.getElementById('issue-input').value;
+            const address = document.getElementById('address-input').value;
+
+            try {
+                await addDoc(collection(db, "bookings"), {
+                    userId: user.uid,
+                    userName: user.displayName,
+                    userEmail: user.email,
+                    appliance: appliance,
+                    issue: issue,
+                    address: address,
+                    status: "Pending",
+                    createdAt: new Date()
+                });
+
+                alert("Repair Booking Successful! Our technician will contact you soon.");
+                document.getElementById('booking-form').reset();
+            } catch (err) {
+                console.error("Booking Error:", err);
+                alert("Failed to book repair. Please try again.");
+            }
+        };
+
+        // KYC Form Submission
         document.getElementById('kyc-form').onsubmit = async (e) => {
             e.preventDefault();
             const user = auth.currentUser;
@@ -171,14 +232,18 @@
                 document.getElementById('user-profile').classList.remove('hidden');
                 document.getElementById('user-name').textContent = user.displayName;
 
-                const userSnap = await getDoc(doc(db, "users", user.uid));
-                if (userSnap.exists()) {
-                    const data = userSnap.data();
-                    document.getElementById('user-role-badge').textContent = (data.role || 'customer').toUpperCase();
-                    if (data.role === 'partner' && !data.kycCompleted) {
-                        document.getElementById('main-content').classList.add('hidden');
-                        document.getElementById('kyc-section').classList.remove('hidden');
+                try {
+                    const userSnap = await getDoc(doc(db, "users", user.uid));
+                    if (userSnap.exists()) {
+                        const data = userSnap.data();
+                        document.getElementById('user-role-badge').textContent = (data.role || 'customer').toUpperCase();
+                        if (data.role === 'partner' && !data.kycCompleted) {
+                            document.getElementById('main-content').classList.add('hidden');
+                            document.getElementById('kyc-section').classList.remove('hidden');
+                        }
                     }
+                } catch (err) {
+                    console.log("Could not fetch user role:", err);
                 }
             }
         });
