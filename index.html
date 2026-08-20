@@ -77,7 +77,7 @@
     <!-- Firebase SDK & Core Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -99,26 +99,11 @@
         document.getElementById('get-started-btn').onclick = () => roleModal.classList.remove('hidden');
         document.getElementById('close-modal-btn').onclick = () => roleModal.classList.add('hidden');
 
-        // Handle role selection using Redirect (Best for Mobile)
         async function handleRoleSelection(role) {
-            localStorage.setItem('pending_role', role);
             roleModal.classList.add('hidden');
             try {
-                await signInWithRedirect(auth, provider);
-            } catch (error) {
-                console.error("Redirect Error:", error);
-                alert("Login failed: " + error.message);
-            }
-        }
-
-        document.getElementById('role-customer-btn').onclick = () => handleRoleSelection('customer');
-        document.getElementById('role-partner-btn').onclick = () => handleRoleSelection('partner');
-
-        // Check redirect result after returning from Google
-        getRedirectResult(auth).then(async (result) => {
-            if (result && result.user) {
+                const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                const role = localStorage.getItem('pending_role') || 'customer';
                 
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
@@ -132,10 +117,21 @@
                         createdAt: new Date()
                     });
                 }
+
+                const userData = userSnap.exists() ? userSnap.data() : { role: role, kycCompleted: role === 'customer' };
+
+                if (userData.role === 'partner' && !userData.kycCompleted) {
+                    document.getElementById('main-content').classList.add('hidden');
+                    document.getElementById('kyc-section').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Login failed: " + error.message);
             }
-        }).catch((error) => {
-            console.error("Auth Redirect Result Error:", error);
-        });
+        }
+
+        document.getElementById('role-customer-btn').onclick = () => handleRoleSelection('customer');
+        document.getElementById('role-partner-btn').onclick = () => handleRoleSelection('partner');
 
         document.getElementById('kyc-form').onsubmit = async (e) => {
             e.preventDefault();
