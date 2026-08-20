@@ -12,12 +12,12 @@
     <header class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50">
         <h1 class="text-2xl font-bold text-blue-600">RepairWings</h1>
         <div id="auth-section">
-            <button onclick="document.getElementById('role-modal').classList.remove('hidden')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition">Login / Register</button>
+            <button id="open-modal-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition">Login / Register</button>
         </div>
         <div id="user-profile" class="hidden flex items-center gap-3">
             <span id="user-name" class="text-sm font-medium"></span>
             <span id="user-role-badge" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-semibold"></span>
-            <button onclick="logout()" class="text-red-500 text-sm hover:underline font-medium ml-2">Logout</button>
+            <button id="logout-btn" class="text-red-500 text-sm hover:underline font-medium ml-2">Logout</button>
         </div>
     </header>
 
@@ -25,7 +25,7 @@
     <main id="main-content" class="p-8 text-center max-w-4xl mx-auto my-12">
         <h2 class="text-4xl font-extrabold mb-4">Expert Repair Services at Your Doorstep</h2>
         <p class="text-gray-600 text-lg mb-8">Fast, reliable, and professional repair solutions for your appliances and gadgets.</p>
-        <button onclick="document.getElementById('role-modal').classList.remove('hidden')" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition">Get Started</button>
+        <button id="get-started-btn" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition">Get Started</button>
     </main>
 
     <!-- Partner KYC Form (Hidden by default) -->
@@ -52,18 +52,18 @@
     <!-- Role Selection Modal -->
     <div id="role-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white p-6 rounded-2xl w-full max-w-sm text-center shadow-2xl relative">
-            <button onclick="document.getElementById('role-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold">✕</button>
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold">✕</button>
             <h3 class="mb-2 font-bold text-xl">Select Your Role</h3>
             <p class="text-gray-500 text-sm mb-6">How would you like to use RepairWings?</p>
             <div class="space-y-3">
-                <button onclick="handleRole('customer')" class="w-full p-3 border rounded-xl font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
+                <button id="role-customer-btn" class="w-full p-3 border rounded-xl font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
                     <div>
                         <div class="font-bold text-gray-800">Customer</div>
                         <div class="text-xs text-gray-500">I want to book repairs</div>
                     </div>
                     <span class="text-blue-600 font-bold">→</span>
                 </button>
-                <button onclick="handleRole('partner')" class="w-full p-3 border rounded-xl font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
+                <button id="role-partner-btn" class="w-full p-3 border rounded-xl font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
                     <div>
                         <div class="font-bold text-gray-800">Service Partner</div>
                         <div class="text-xs text-gray-500">I want to provide services</div>
@@ -80,7 +80,6 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // 🔥 Tera asli Firebase Configuration yahan properly integrated hai 🔥
         const firebaseConfig = {
             apiKey: "AIzaSyBOrJZdJboEsCssxfkYGHXc30yNYkFQzls",
             authDomain: "repairwings-7812f.firebaseapp.com",
@@ -95,8 +94,14 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        window.handleRole = async (role) => {
-            document.getElementById('role-modal').classList.add('hidden');
+        // Modal Controls using safe event listeners
+        const roleModal = document.getElementById('role-modal');
+        document.getElementById('open-modal-btn').onclick = () => roleModal.classList.remove('hidden');
+        document.getElementById('get-started-btn').onclick = () => roleModal.classList.remove('hidden');
+        document.getElementById('close-modal-btn').onclick = () => roleModal.classList.add('hidden');
+
+        async function handleRoleSelection(role) {
+            roleModal.classList.add('hidden');
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
@@ -124,7 +129,10 @@
                 console.error("Login Error:", error);
                 alert("Login failed: " + error.message);
             }
-        };
+        }
+
+        document.getElementById('role-customer-btn').onclick = () => handleRoleSelection('customer');
+        document.getElementById('role-partner-btn').onclick = () => handleRoleSelection('partner');
 
         document.getElementById('kyc-form').onsubmit = async (e) => {
             e.preventDefault();
@@ -140,7 +148,7 @@
                     kycCompleted: true,
                     aadhaar: aadhaar,
                     pan: pan,
-                    upi: upi
+                    upi: and
                 }, { merge: true });
 
                 alert("KYC Submitted Successfully!");
@@ -152,7 +160,7 @@
             }
         };
 
-        window.logout = () => {
+        document.getElementById('logout-btn').onclick = () => {
             signOut(auth).then(() => {
                 location.reload();
             });
