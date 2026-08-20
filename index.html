@@ -6,95 +6,139 @@
     <title>RepairWings - Professional Service Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 font-sans pb-20">
 
     <!-- Header / Navbar -->
-    <header class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-2xl font-bold text-blue-600">RepairWings</h1>
+    <header class="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-xl font-bold text-blue-600">RepairWings</h1>
         <div id="auth-section">
-            <button id="open-modal-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-blue-700 transition">Login / Register</button>
+            <button id="open-modal-btn" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow hover:bg-blue-700 transition">Login / Register</button>
         </div>
-        <div id="user-profile" class="hidden flex items-center gap-3">
-            <span id="user-name" class="text-sm font-medium"></span>
-            <span id="user-role-badge" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-semibold"></span>
-            <button id="logout-btn" class="text-red-500 text-sm hover:underline font-medium ml-2">Logout</button>
+        <div id="user-profile" class="hidden flex items-center gap-2">
+            <span id="user-name" class="text-xs font-medium"></span>
+            <span id="user-role-badge" class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-semibold"></span>
+            <button id="logout-btn" class="text-red-500 text-xs hover:underline font-medium ml-1">Logout</button>
         </div>
     </header>
 
-    <!-- Hero / Main Content (For Customers to Book Repairs) -->
-    <main id="main-content" class="p-6 text-center max-w-4xl mx-auto my-6">
-        <h2 class="text-4xl font-extrabold mb-4">Expert Repair Services at Your Doorstep</h2>
-        <p class="text-gray-600 text-lg mb-8">Fast, reliable, and professional repair solutions for your appliances and gadgets.</p>
-        
-        <!-- Service Booking Section -->
-        <div id="booking-section" class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 text-left max-w-lg mx-auto mb-8">
-            <h3 class="text-xl font-bold mb-4 text-blue-600">Book a Repair Service</h3>
-            <form id="booking-form" class="space-y-4">
+    <!-- Main Home Dashboard -->
+    <main id="main-content" class="p-4 max-w-lg mx-auto">
+        <div class="mb-6">
+            <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Expert Repair Services</h2>
+            <p class="text-gray-500 text-xs">Fast, reliable, and professional doorstep solutions.</p>
+        </div>
+
+        <!-- Service Categories Grid -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div onclick="selectCategory('Mobile')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-500 cursor-pointer transition">
+                <div class="text-2xl mb-2">📱</div>
+                <div class="font-bold text-sm text-gray-800">Mobile</div>
+                <div class="text-[11px] text-gray-400">Screen, battery, charging</div>
+            </div>
+            <div onclick="selectCategory('TV')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-500 cursor-pointer transition">
+                <div class="text-2xl mb-2">📺</div>
+                <div class="font-bold text-sm text-gray-800">TV</div>
+                <div class="text-[11px] text-gray-400">Display, sound, power</div>
+            </div>
+            <div onclick="selectCategory('AC')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-500 cursor-pointer transition">
+                <div class="text-2xl mb-2">❄️</div>
+                <div class="font-bold text-sm text-gray-800">AC</div>
+                <div class="text-[11px] text-gray-400">Cooling, gas, compressor</div>
+            </div>
+            <div onclick="selectCategory('Fridge')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-500 cursor-pointer transition">
+                <div class="text-2xl mb-2">🧊</div>
+                <div class="font-bold text-sm text-gray-800">Fridge</div>
+                <div class="text-[11px] text-gray-400">Cooling, compressor, PCB</div>
+            </div>
+            <div onclick="selectCategory('Washing Machine')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-500 cursor-pointer transition">
+                <div class="text-2xl mb-2">🌀</div>
+                <div class="font-bold text-sm text-gray-800">Washing Machine</div>
+                <div class="text-[11px] text-gray-400">Motor, drain, PCB</div>
+            </div>
+            <div onclick="selectCategory('Microwave')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:border-blue-500 cursor-pointer transition">
+                <div class="text-2xl mb-2">🔥</div>
+                <div class="font-bold text-sm text-gray-800">Microwave</div>
+                <div class="text-[11px] text-gray-400">Heating, keypad, power</div>
+            </div>
+        </div>
+
+        <!-- Booking Form Container (Hidden until category clicked) -->
+        <div id="booking-container" class="hidden bg-white p-5 rounded-2xl shadow-md border border-blue-100 mb-6">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-blue-600 text-sm" id="booking-title">Book Service</h3>
+                <button onclick="document.getElementById('booking-container').classList.add('hidden')" class="text-gray-400 text-xs font-bold">✕ Close</button>
+            </div>
+            <form id="booking-form" class="space-y-3">
+                <input type="hidden" id="selected-appliance">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Select Appliance / Item</label>
-                    <select id="appliance-select" class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600 bg-white" required>
-                        <option value="">-- Choose what to repair --</option>
-                        <option value="AC (Air Conditioner)">AC (Air Conditioner)</option>
-                        <option value="Washing Machine">Washing Machine</option>
-                        <option value="Refrigerator">Refrigerator</option>
-                        <option value="LED / Smart TV">LED / Smart TV</option>
-                        <option value="Microwave Oven">Microwave Oven</option>
-                        <option value="Geyser / Water Heater">Geyser / Water Heater</option>
-                        <option value="Other Gadget/Appliance">Other Gadget / Appliance</option>
-                    </select>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Describe the Issue</label>
+                    <textarea id="issue-input" rows="2" placeholder="E.g., Not working properly..." class="w-full border rounded-lg p-2.5 text-xs outline-none focus:ring-2 focus:ring-blue-600" required></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Describe the Issue</label>
-                    <textarea id="issue-input" rows="3" placeholder="E.g., Not cooling properly, making loud noise, etc." class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600" required></textarea>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Your Address / Location</label>
+                    <input type="text" id="address-input" placeholder="Complete doorstep address" class="w-full border rounded-lg p-2.5 text-xs outline-none focus:ring-2 focus:ring-blue-600" required>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Your Address / Location</label>
-                    <input type="text" id="address-input" placeholder="Enter complete address for doorstep visit" class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md">Book Repair Now</button>
+                <button type="submit" class="w-full bg-blue-600 text-white p-2.5 rounded-xl font-bold text-xs hover:bg-blue-700 transition shadow">Confirm Booking</button>
             </form>
+        </div>
+
+        <!-- Quick Help Section -->
+        <h3 class="font-bold text-sm text-gray-800 mb-3">Quick help</h3>
+        <div class="grid grid-cols-3 gap-2 mb-6">
+            <div class="bg-white p-3 rounded-xl border border-gray-100 text-center text-xs font-medium text-gray-700 shadow-sm">🧊 Fridge Help</div>
+            <div class="bg-white p-3 rounded-xl border border-gray-100 text-center text-xs font-medium text-gray-700 shadow-sm">📍 Track pickup</div>
+            <div class="bg-white p-3 rounded-xl border border-gray-100 text-center text-xs font-medium text-gray-700 shadow-sm">📄 My orders</div>
+        </div>
+
+        <!-- Trust Card -->
+        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+            <div>
+                <div class="font-bold text-xs text-gray-800">Transparent & safer repair</div>
+                <div class="text-[10px] text-gray-400">Estimate pehle • repairer verification • tracking</div>
+            </div>
+            <span class="text-blue-600 font-bold">›</span>
         </div>
     </main>
 
     <!-- Partner KYC Form (Hidden by default) -->
-    <section id="kyc-section" class="hidden p-8 max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 my-10">
-        <h3 class="text-2xl font-bold mb-2 text-blue-600">Partner KYC Verification</h3>
-        <p class="text-gray-500 text-sm mb-6">Complete your verification details to start receiving repair orders.</p>
-        <form id="kyc-form" class="space-y-4">
+    <section id="kyc-section" class="hidden p-6 max-w-sm mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 my-10">
+        <h3 class="text-xl font-bold mb-1 text-blue-600">Partner KYC Verification</h3>
+        <p class="text-gray-500 text-xs mb-4">Complete details to receive orders.</p>
+        <form id="kyc-form" class="space-y-3">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Aadhaar Number</label>
-                <input type="text" id="aadhaar-input" placeholder="12-digit Aadhaar" maxlength="12" class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600" required>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Aadhaar Number</label>
+                <input type="text" id="aadhaar-input" placeholder="12-digit Aadhaar" maxlength="12" class="w-full border rounded-lg p-2.5 text-xs outline-none focus:ring-2 focus:ring-blue-600" required>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">PAN Number</label>
-                <input type="text" id="pan-input" placeholder="PAN Card No." class="w-full border rounded-lg p-3 text-sm outline-none uppercase focus:ring-2 focus:ring-blue-600" required>
+                <label class="block text-xs font-medium text-gray-700 mb-1">PAN Number</label>
+                <input type="text" id="pan-input" placeholder="PAN Card No." class="w-full border rounded-lg p-2.5 text-xs outline-none uppercase focus:ring-2 focus:ring-blue-600" required>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">UPI ID (For Direct Payments)</label>
-                <input type="text" id="upi-input" placeholder="username@oksbi" class="w-full border rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-600" required>
+                <label class="block text-xs font-medium text-gray-700 mb-1">UPI ID</label>
+                <input type="text" id="upi-input" placeholder="username@oksbi" class="w-full border rounded-lg p-2.5 text-xs outline-none focus:ring-2 focus:ring-blue-600" required>
             </div>
-            <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md">Submit KYC & Complete</button>
+            <button type="submit" class="w-full bg-blue-600 text-white p-2.5 rounded-xl font-bold text-xs hover:bg-blue-700 transition">Submit KYC</button>
         </form>
     </section>
 
     <!-- Role Selection Modal -->
     <div id="role-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm text-center shadow-2xl relative">
-            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold">✕</button>
-            <h3 class="mb-2 font-bold text-xl">Select Your Role</h3>
-            <p class="text-gray-500 text-sm mb-6">How would you like to use RepairWings?</p>
-            <div class="space-y-3">
-                <button id="role-customer-btn" class="w-full p-3 border rounded-xl font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
+        <div class="bg-white p-5 rounded-2xl w-full max-w-xs text-center shadow-2xl relative">
+            <button onclick="document.getElementById('role-modal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-400 font-bold">✕</button>
+            <h3 class="mb-1 font-bold text-base">Select Your Role</h3>
+            <p class="text-gray-500 text-xs mb-4">How do you want to use RepairWings?</p>
+            <div class="space-y-2">
+                <button id="role-customer-btn" class="w-full p-2.5 border rounded-xl text-xs font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
                     <div>
                         <div class="font-bold text-gray-800">Customer</div>
-                        <div class="text-xs text-gray-500">I want to book repairs</div>
+                        <div class="text-[10px] text-gray-500">Book repairs</div>
                     </div>
                     <span class="text-blue-600 font-bold">→</span>
                 </button>
-                <button id="role-partner-btn" class="w-full p-3 border rounded-xl font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
+                <button id="role-partner-btn" class="w-full p-2.5 border rounded-xl text-xs font-medium hover:border-blue-600 hover:bg-blue-50 transition text-left flex justify-between items-center">
                     <div>
                         <div class="font-bold text-gray-800">Service Partner</div>
-                        <div class="text-xs text-gray-500">I want to provide services</div>
+                        <div class="text-[10px] text-gray-500">Provide services</div>
                     </div>
                     <span class="text-blue-600 font-bold">→</span>
                 </button>
@@ -102,7 +146,27 @@
         </div>
     </div>
 
-    <!-- Firebase SDK & Core Logic -->
+    <!-- Bottom Navigation Bar (App Style) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2.5 z-40 text-xs shadow-lg">
+        <a href="#" class="flex flex-col items-center text-blue-600 font-semibold">
+            <span class="text-base">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-blue-600">
+            <span class="text-base">📋</span>
+            <span>Orders</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-blue-600">
+            <span class="text-base">💳</span>
+            <span>Payments</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-gray-400 hover:text-blue-600">
+            <span class="text-base">👤</span>
+            <span>Account</span>
+        </a>
+    </nav>
+
+    <!-- Firebase SDK & Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -124,7 +188,18 @@
 
         const roleModal = document.getElementById('role-modal');
         document.getElementById('open-modal-btn').onclick = () => roleModal.classList.remove('hidden');
-        document.getElementById('close-modal-btn').onclick = () => roleModal.classList.add('hidden');
+
+        window.selectCategory = function(applianceName) {
+            const user = auth.currentUser;
+            if (!user) {
+                roleModal.classList.remove('hidden');
+                return;
+            }
+            document.getElementById('selected-appliance').value = applianceName;
+            document.getElementById('booking-title').textContent = `Book Service: ${applianceName}`;
+            document.getElementById('booking-container').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
 
         async function handleRoleSelection(role) {
             roleModal.classList.add('hidden');
@@ -137,7 +212,7 @@
                 try {
                     userSnap = await getDoc(userRef);
                 } catch (e) {
-                    console.log("Read error, creating new record");
+                    console.log("Read error");
                 }
 
                 if (!userSnap || !userSnap.exists()) {
@@ -160,7 +235,6 @@
         document.getElementById('role-customer-btn').onclick = () => handleRoleSelection('customer');
         document.getElementById('role-partner-btn').onclick = () => handleRoleSelection('partner');
 
-        // Booking Form Submission
         document.getElementById('booking-form').onsubmit = async (e) => {
             e.preventDefault();
             const user = auth.currentUser;
@@ -169,7 +243,7 @@
                 return;
             }
 
-            const appliance = document.getElementById('appliance-select').value;
+            const appliance = document.getElementById('selected-appliance').value;
             const issue = document.getElementById('issue-input').value;
             const address = document.getElementById('address-input').value;
 
@@ -185,15 +259,15 @@
                     createdAt: new Date()
                 });
 
-                alert("Repair Booking Successful! Our technician will contact you soon.");
+                alert("Repair Booking Successful!");
                 document.getElementById('booking-form').reset();
+                document.getElementById('booking-container').classList.add('hidden');
             } catch (err) {
                 console.error("Booking Error:", err);
-                alert("Failed to book repair. Please try again.");
+                alert("Failed to book repair. Try again.");
             }
         };
 
-        // KYC Form Submission
         document.getElementById('kyc-form').onsubmit = async (e) => {
             e.preventDefault();
             const user = auth.currentUser;
@@ -215,15 +289,13 @@
                 document.getElementById('kyc-section').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
             } catch (err) {
-                console.error("KYC Save Error:", err);
-                alert("Failed to save KYC. Try again.");
+                console.error("KYC Error:", err);
+                alert("Failed to save KYC.");
             }
         };
 
         document.getElementById('logout-btn').onclick = () => {
-            signOut(auth).then(() => {
-                location.reload();
-            });
+            signOut(auth).then(() => location.reload());
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -243,7 +315,7 @@
                         }
                     }
                 } catch (err) {
-                    console.log("Could not fetch user role:", err);
+                    console.log("Role fetch error");
                 }
             }
         });
